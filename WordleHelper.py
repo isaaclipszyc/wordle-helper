@@ -1,3 +1,4 @@
+import re
 
 # words in AllWords.txt comes from https://www-cs-faculty.stanford.edu/~knuth/sgb-words.txt
 def getAllWords() -> list[str]:
@@ -31,19 +32,26 @@ def greenFilter(allWords: list[str], guess: str) -> list[str]:
 
   return filteredWords
 
-# iterate through words, check if all potential letters is contained in the word, if so append to output
-def yellowFilter(words: list[str], potentialLetters) -> list[str]:
+# iterate through words, first check if all potential letters is contained in the word, if so then check each letter is in none of the positions listed as incorrect.
+def yellowFilter(words: list[str], yellows: dict) -> list[str]:
   filteredWords = []
+  potentialLetters = yellows.keys()
   for word in words:
-    containsAllPotential = True
+    potentialWord = True
     for letter in potentialLetters:
       if letter not in word:
-        containsAllPotential = False
+        potentialWord = False
         break
+      else:
+        positions = yellows[letter]
+        for position in positions:
+          if word[position] == letter:
+            potentialWord = False
     
-    if containsAllPotential:
+    if potentialWord:
       filteredWords.append(word)
   
+
   return filteredWords
 
 # iterate through words, if any wrongLetter is found in the word, do not add it to the filtered words.
@@ -60,12 +68,32 @@ def greyFilter(words: list[str], wrongLetters: str) -> list[str]:
 
 
 # utility functions
-def isInputValid(guess) -> bool:
-  return True if len(guess) == 5 else False
+def isGreenInputValid(guess) -> bool:
+  return True if len(guess) == 5 or len(guess) == 0 else False
 
-def formatInput(letters: str) -> str:
+def isYellowInputValid(input: str) -> bool:
+  strs = input.split()
+  for str in strs:
+    valid = re.fullmatch("^[a-zA-Z][:]([0-5]{1}(,[0-5]){1})", str)
+    if valid == None:
+      return False
+
+  return True
+
+def formatGreyInput(letters: str) -> str:
   formatted = letters.replace(",", "")
   return formatted
+
+def formatYellowInput(input: str) -> dict:
+  yellowsDict = {}
+  lettersAndPositions = input.split()
+  for letterAndPositions in lettersAndPositions:
+    split = letterAndPositions.split(":")
+    letter = split[0]
+    positions = [int(pos) for pos in split[1].split(",")]
+    yellowsDict[letter] = positions
+  
+  return yellowsDict
 
 def allUnderscore(guess: str) -> bool:
   for c in guess:
@@ -80,27 +108,35 @@ def main():
   allWords = getAllWords()
 
   # get user input
-  validInput = False
+  validGreenInput = False
   greens = ""
-  while not validInput:
+  while not validGreenInput:
     print("Please enter your guess with unknown letters marked as an underscore (_):")
     greens = input("==>")
-    if isInputValid(greens):
-      validInput = True
+    if isGreenInputValid(greens):
+      validGreenInput = True
     else:
-      print("Invalid input, guess must be 5 characters long. ")
+      print("Invalid input, guess must be 5 characters long, or, empty. ")
 
-  print("Any letters in incorrect position? If so please enter them in one line (comma seperated), or, hit enter to ignore: ")
-  yellows = input("==>")
+  validYellowInput = False
+  yellows = ""
+  
+  while not validYellowInput:
+    print("Any letters in incorrect position? If so please enter them in the form 'letter:indexes letter:indexes etc.' where the indexes are comma seperated, or, hit enter to ignore: ")
+    yellows = input("==>")
+    if isYellowInputValid(yellows):
+      validYellowInput = True
+    else:
+      print("Invalid input, guess must be in the form 'letter:indexes letter:indexes etc.' where the indexes are comma seperated, or, empty. ")
 
   if yellows:
-    yellows = formatInput(yellows)
+    yellows = formatYellowInput(yellows)
 
   print("Any letters not in the word? If so please enter them in one line (comma seperated), or, hit enter to ignore: ")
   greys = input("==>")
 
   if greys:
-    greys = formatInput(greys)
+    greys = formatGreyInput(greys)
 
   #filter words using found letters (letters in correct position)
   # filtered words from greenFilter is used as the base for the next filtering.
