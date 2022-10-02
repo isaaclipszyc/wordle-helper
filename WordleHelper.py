@@ -74,10 +74,9 @@ def isGreenInputValid(guess) -> bool:
 def isYellowInputValid(input: str) -> bool:
   strs = input.split()
   for str in strs:
-    valid = re.fullmatch("^[a-zA-Z][:]([0-5]{1}(,[0-5]){1})", str)
+    valid = re.fullmatch("^[a-zA-Z]:[0-5]{1}(,([0-5]){1})*", str)
     if valid == None:
       return False
-
   return True
 
 def formatGreyInput(letters: str) -> str:
@@ -92,7 +91,6 @@ def formatYellowInput(input: str) -> dict:
     letter = split[0]
     positions = [int(pos) for pos in split[1].split(",")]
     yellowsDict[letter] = positions
-  
   return yellowsDict
 
 def allUnderscore(guess: str) -> bool:
