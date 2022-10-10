@@ -2,9 +2,8 @@ import re
 
 # words in AllWords.txt comes from https://www-cs-faculty.stanford.edu/~knuth/sgb-words.txt
 def getAllWords() -> list[str]:
-  txtFile = open("AllWords.txt")
-  content = txtFile.read().splitlines()
-  txtFile.close()
+  with open("AllWords.txt") as txtFile:
+    content = txtFile.read().splitlines()
   return content
 
 # iterate through words, 
@@ -109,8 +108,8 @@ def main():
   validGreenInput = False
   greens = ""
   while not validGreenInput:
-    print("Please enter your guess with unknown letters marked as an underscore (_):")
-    greens = input("==>")
+    print("Please enter your guess with unknown letters marked as an underscore (_), i.e. only the green letters should be inputted:")
+    greens = input("==>").lower()
     if isGreenInputValid(greens):
       validGreenInput = True
     else:
@@ -121,7 +120,7 @@ def main():
   
   while not validYellowInput:
     print("Any letters in incorrect position? If so please enter them in the form 'letter:indexes letter:indexes etc.' where the indexes are comma seperated, or, hit enter to ignore: ")
-    yellows = input("==>")
+    yellows = input("==>").lower()
     if isYellowInputValid(yellows):
       validYellowInput = True
     else:
@@ -131,7 +130,7 @@ def main():
     yellows = formatYellowInput(yellows)
 
   print("Any letters not in the word? If so please enter them in one line (comma seperated), or, hit enter to ignore: ")
-  greys = input("==>")
+  greys = input("==>").lower()
 
   if greys:
     greys = formatGreyInput(greys)
