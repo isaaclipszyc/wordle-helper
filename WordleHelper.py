@@ -83,14 +83,9 @@ def formatGreyInput(letters: str) -> str:
   return formatted
 
 def formatYellowInput(input: str) -> dict:
-  yellowsDict = {}
-  lettersAndPositions = input.split()
-  for letterAndPositions in lettersAndPositions:
-    split = letterAndPositions.split(":")
-    letter = split[0]
-    positions = [int(pos) for pos in split[1].split(",")]
-    yellowsDict[letter] = positions
-  return yellowsDict
+  # split input by space, then split those by :, this results in a 2D array of [[letter, positions]],
+  # we then create a dictionary of this while converting the positions to a list of indices
+  return {lnps[0]: [int(pos) for pos in lnps[1].split(",")] for lnps in [lsnps.split(":") for lsnps in input.split()]}
 
 def allUnderscore(guess: str) -> bool:
   for c in guess:
@@ -126,14 +121,12 @@ def main():
     else:
       print("Invalid input, guess must be in the form 'letter:indexes letter:indexes etc.' where the indexes are comma seperated, or, empty. ")
 
-  if yellows:
-    yellows = formatYellowInput(yellows)
+  yellows = formatYellowInput(yellows)
 
   print("Any letters not in the word? If so please enter them in one line (comma seperated), or, hit enter to ignore: ")
   greys = input("==>").lower()
 
-  if greys:
-    greys = formatGreyInput(greys)
+  greys = formatGreyInput(greys)
 
   #filter words using found letters (letters in correct position)
   # filtered words from greenFilter is used as the base for the next filtering.
